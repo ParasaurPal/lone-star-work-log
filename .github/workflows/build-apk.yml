@@ -1,0 +1,142 @@
+name: Build Android Debug APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vite SPA
+        run: npm run build
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk lonestar-worklog-debug.apk
+
+      - name: Attach APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: LoneStar WorkLog (Latest Debug Build)
+          body: Automated debug APK build from commit `${{ github.sha }}`.
+          files: lonestar-worklog-debug.apk
+          prerelease: true
+
+cd ~/lone-star-work-log
+
+# 1. Remove binary APK from git tracking so main stays clean
+git rm -rf apk/ 2>/dev/null || rm -rf apk/
+
+# 2. Update workflow to attach raw lonestar-worklog-debug.apk to a GitHub Release
+cat << 'EOF' > .github/workflows/build-apk.yml
+name: Build Android Debug APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vite SPA
+        run: npm run build
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk lonestar-worklog-debug.apk
+
+      - name: Attach APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: LoneStar WorkLog (Latest Debug Build)
+          body: Automated debug APK build from commit `${{ github.sha }}`.
+          files: lonestar-worklog-debug.apk
+          prerelease: true
