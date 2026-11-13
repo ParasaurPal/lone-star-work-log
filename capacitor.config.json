@@ -4,5 +4,12 @@
   "webDir": "dist/client",
   "android": {
     "allowMixedContent": true
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#0f172a"
+    }
   }
 }
