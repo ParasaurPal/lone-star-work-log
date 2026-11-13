@@ -64,3 +64,4 @@ jobs:
           name: "LoneStar WorkLog (Latest Debug Build)"
           body: "Automated debug APK build from commit ${{ github.sha }}."
           files: lonestar-worklog-debug.apk
+          prerelease: false
