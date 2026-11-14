@@ -65,6 +65,7 @@ export default function SavedJobCard({ job, onStatusChange, onConvert, onDelete,
         ) : null}
         <span className="text-[0.68rem] text-muted-foreground">
           Saved {formatDate(job.created_date)}
+          {job.status === "applied" && job.date_applied ? ` · Applied ${formatDate(job.date_applied)}` : ""}
           {job.posted_at ? ` · Posted ${formatDate(job.posted_at)}` : ""}
         </span>
       </div>
