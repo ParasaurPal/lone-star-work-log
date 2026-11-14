@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { checkScheduledReminders } from "@/lib/scheduledReminders-fns";
 import { NAV_ITEMS } from "@/components/appNav";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { watchSharedJobs } from "@/lib/shareIntent";
 import SharedJobImportDialog from "@/components/jobs/SharedJobImportDialog";
 
@@ -35,9 +36,13 @@ export default function AppShell({ children }) {
   }, []);
 
   useEffect(() => {
-    checkScheduledReminders({
-      data: typeof window === "undefined" ? undefined : { appUrl: window.location.origin },
-    }).catch(() => {});
+    checkScheduledReminders()
+      .then((result) => {
+        if (result?.sent) {
+          toast.info(`Weekly work-search reminder: ${result.logged} of ${result.goal} contacts logged. Week ending ${result.weekEnd}.`);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (
