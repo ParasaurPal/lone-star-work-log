@@ -62,6 +62,10 @@ function SavedJobsPage() {
   }, [items, status, source, sort]);
 
   const changeStatus = async (job, value) => {
+    if (value === "applied") {
+      await convertToApplication(job);
+      return;
+    }
     try {
       await localStore.entities.SavedJob.update(job.id, { status: value });
       toast.success("Status updated");
@@ -83,10 +87,15 @@ function SavedJobsPage() {
         application_method: "Online",
         status: "Applied",
         contact_info: job.url || "",
+        job_posting_url: job.url || "",
         twc_week_ending: isoDate(weekEndingSaturday(today)),
         notes: `Added from JobSweep (${job.source_label || job.source}). Listing: ${job.url || "n/a"}`,
       });
-      await localStore.entities.SavedJob.update(job.id, { status: "applied" });
+      await localStore.entities.SavedJob.update(job.id, {
+        status: "applied",
+        application_id: (await localStore.entities.JobApplication.filter({ job_posting_url: job.url || "" }))[0]?.id,
+        date_applied: isoDate(today),
+      });
       toast.success("Added to your work search record");
       reload();
     } catch (error) {
