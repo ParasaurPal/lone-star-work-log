@@ -79,6 +79,19 @@ function SavedJobsPage() {
     setConvertingId(job.id);
     try {
       const today = new Date();
+      const existing = job.url
+        ? await localStore.entities.JobApplication.filter({ job_posting_url: job.url })
+        : [];
+      if (existing.length) {
+        await localStore.entities.SavedJob.update(job.id, {
+          status: "applied",
+          application_id: existing[0].id,
+          date_applied: existing[0].date_applied,
+        });
+        toast.info("This application is already in your tracker.");
+        reload();
+        return;
+      }
       const application = await localStore.entities.JobApplication.create({
         date_applied: isoDate(today),
         company_name: job.company,
