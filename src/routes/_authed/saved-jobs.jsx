@@ -79,7 +79,7 @@ function SavedJobsPage() {
     setConvertingId(job.id);
     try {
       const today = new Date();
-      await localStore.entities.JobApplication.create({
+      const application = await localStore.entities.JobApplication.create({
         date_applied: isoDate(today),
         company_name: job.company,
         position_title: job.title,
@@ -93,7 +93,7 @@ function SavedJobsPage() {
       });
       await localStore.entities.SavedJob.update(job.id, {
         status: "applied",
-        application_id: (await localStore.entities.JobApplication.filter({ job_posting_url: job.url || "" }))[0]?.id,
+        application_id: application.id,
         date_applied: isoDate(today),
       });
       toast.success("Added to your work search record");
