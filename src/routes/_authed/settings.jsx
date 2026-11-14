@@ -22,7 +22,7 @@ import CalendarSyncCard from "@/components/settings/CalendarSyncCard";
 import BackupRestoreCard from "@/components/settings/BackupRestoreCard";
 import { sendTestReminder } from "@/lib/reminder-fns";
 import { formatDateTime } from "@/lib/format";
-import { BellRing, Loader2, Mail, CheckCircle2, AlertCircle } from "lucide-react";
+import { BellRing, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authed/settings")({
@@ -89,7 +89,7 @@ function SettingsPage() {
       toast.success(`Test reminder saved on this device. ${result.logged} contacts logged this week.`);
       reloadLogs();
     } catch (err) {
-      toast.error("The test email couldn't be sent.");
+      toast.error("The local test reminder couldn't be saved.");
     } finally {
       setTesting(false);
     }
@@ -246,7 +246,7 @@ function SettingsPage() {
           <section className="paper-panel p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-[0.95rem] font-semibold tracking-tight">Reminder history</h2>
-              <Mail className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
+              <BellRing className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
             </div>
 
             {logsLoading ? (
