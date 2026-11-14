@@ -19,6 +19,7 @@ import {
   useNotificationSettings,
 } from "@/lib/useLogData";
 import CalendarSyncCard from "@/components/settings/CalendarSyncCard";
+import BackupRestoreCard from "@/components/settings/BackupRestoreCard";
 import { sendTestReminder } from "@/lib/reminder-fns";
 import { formatDateTime } from "@/lib/format";
 import { BellRing, Loader2, Mail, CheckCircle2, AlertCircle } from "lucide-react";
@@ -296,6 +297,7 @@ function SettingsPage() {
           </section>
           </div>
 
+          <BackupRestoreCard />
           <CalendarSyncCard />
         </div>
       )}
