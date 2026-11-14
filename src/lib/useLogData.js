@@ -56,7 +56,7 @@ export function useInterviews() {
 }
 
 const DEFAULT_SETTINGS = {
-  notification_channel: "Email",
+  notification_channel: "Push",
   reminder_day: "Friday",
   reminder_time: "09:00",
   enabled: true,
