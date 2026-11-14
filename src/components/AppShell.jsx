@@ -1,13 +1,16 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { Star, LogOut, Plus, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Star, Plus, Settings } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { checkScheduledReminders } from "@/lib/scheduledReminders-fns";
 import { NAV_ITEMS } from "@/components/appNav";
 import { cn } from "@/lib/utils";
+import { watchSharedJobs } from "@/lib/shareIntent";
+import SharedJobImportDialog from "@/components/jobs/SharedJobImportDialog";
 
 export default function AppShell({ children }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const [sharedJob, setSharedJob] = useState(null);
   const navigate = useNavigate();
   const initials = (user?.full_name || user?.email || "L")
     .split(" ")
@@ -15,6 +18,21 @@ export default function AppShell({ children }) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  useEffect(() => {
+    let active = true;
+    let stopListening;
+    watchSharedJobs((payload) => {
+      if (active) setSharedJob(payload);
+    }).then((stop) => {
+      stopListening = stop;
+      if (!active) stop?.();
+    });
+    return () => {
+      active = false;
+      stopListening?.();
+    };
+  }, []);
 
   useEffect(() => {
     checkScheduledReminders({
@@ -72,21 +90,13 @@ export default function AppShell({ children }) {
               </span>
               <span className="min-w-0 leading-tight">
                 <span className="block truncate text-[0.8rem] font-medium">
-                  {user?.full_name || "Your account"}
+                  {user?.full_name || "Local workspace"}
                 </span>
                 <span className="block truncate text-[0.7rem] text-muted-foreground">
-                  {user?.email || "signed in"}
+                  Saved on this device
                 </span>
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => logout()}
-              className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[0.75rem] font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
-            </button>
           </div>
         </aside>
 
@@ -142,6 +152,11 @@ export default function AppShell({ children }) {
           ))}
         </div>
       </nav>
+      <SharedJobImportDialog
+        open={Boolean(sharedJob)}
+        onOpenChange={(open) => !open && setSharedJob(null)}
+        shared={sharedJob}
+      />
     </div>
   );
 }
