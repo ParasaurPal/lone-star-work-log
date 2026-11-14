@@ -24,7 +24,6 @@ function centralNow(date) {
 }
 
 export async function sendTestReminder({ data = {} } = {}) {
-  const user = await localStore.auth.me();
   const weekEnd = isoDate(weekEndingSaturday());
   const goal = data?.goal ?? 5;
   const logged = await localStore.entities.JobApplication.count({ twc_week_ending: weekEnd });
@@ -35,7 +34,7 @@ export async function sendTestReminder({ data = {} } = {}) {
     status: "Sent",
   });
 
-  return { sent_to: user.email, logged, goal };
+  return { logged, goal };
 }
 
 export async function checkReminder() {
