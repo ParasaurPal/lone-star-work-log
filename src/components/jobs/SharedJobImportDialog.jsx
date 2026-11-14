@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { isoDate, weekEndingSaturday } from "@/lib/twcWeeks";
 import { toast } from "sonner";
-import { Loader2, BriefcaseBusiness, Link2 } from "lucide-react";
+import { Loader2, Briefcase, Link2 } from "lucide-react";
 
 const today = () => {
   const now = new Date();
@@ -108,7 +108,7 @@ export default function SharedJobImportDialog({ open, onOpenChange, shared }) {
       <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <BriefcaseBusiness className="h-5 w-5" />
+            <Briefcase className="h-5 w-5" />
           </div>
           <DialogTitle className="display-title text-xl">Log shared job as applied</DialogTitle>
           <DialogDescription>
@@ -148,7 +148,7 @@ export default function SharedJobImportDialog({ open, onOpenChange, shared }) {
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="ghost" className="rounded-full" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" className="gap-2 rounded-full" disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <BriefcaseBusiness className="h-4 w-4" />}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Briefcase className="h-4 w-4" />}
               Mark as Applied
             </Button>
           </div>
