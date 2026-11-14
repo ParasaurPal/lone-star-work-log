@@ -31,9 +31,7 @@ export const Route = createFileRoute("/_authed/settings")({
 });
 
 const CHANNELS = [
-  { value: "Email", label: "Email", hint: "A reminder lands in your inbox" },
-  { value: "Push", label: "In-app", hint: "Shown when you open the log" },
-  { value: "Both", label: "Email + in-app", hint: "Both of the above" },
+  { value: "Push", label: "In-app only", hint: "Shown when you open LoneStar WorkLog" },
 ];
 
 const NOTIFICATION_LABELS = {
@@ -53,7 +51,7 @@ function SettingsPage() {
   useEffect(() => {
     if (settings) {
       setForm({
-        notification_channel: settings.notification_channel || "Email",
+        notification_channel: "Push",
         reminder_day: settings.reminder_day || "Friday",
         reminder_time: (settings.reminder_time || "09:00").slice(0, 5),
         enabled: settings.enabled !== false,
@@ -88,7 +86,7 @@ function SettingsPage() {
           appUrl: typeof window === "undefined" ? undefined : window.location.origin,
         },
       });
-      toast.success(`Test reminder sent to ${result.sent_to}`);
+      toast.success(`Test reminder saved on this device. ${result.logged} contacts logged this week.`);
       reloadLogs();
     } catch (err) {
       toast.error("The test email couldn't be sent.");
@@ -102,7 +100,7 @@ function SettingsPage() {
       <PageIntro
         eyebrow="Preferences"
         title="Settings"
-        description="Choose when LoneStar WorkLog nudges you, and how many searches you hold yourself to each week."
+        description="Choose when your on-device reminder appears, and how many searches you hold yourself to each week."
       />
 
       {loading || !form ? (
@@ -240,14 +238,14 @@ function SettingsPage() {
             </div>
 
             <p className="rounded-xl bg-secondary/60 px-3.5 py-3 text-[0.72rem] leading-relaxed text-muted-foreground">
-              Times are Central. A reminder is delivered the first time you open LoneStar WorkLog at
-              or after its scheduled time. Email goes to your account address.
+              Times are Central. Reminders are checked locally when you open LoneStar WorkLog at
+              or after the scheduled time. No account or email delivery is required.
             </p>
           </section>
 
           <section className="paper-panel p-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-[0.95rem] font-semibold tracking-tight">Delivery history</h2>
+              <h2 className="text-[0.95rem] font-semibold tracking-tight">Reminder history</h2>
               <Mail className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
             </div>
 
@@ -259,7 +257,7 @@ function SettingsPage() {
               </div>
             ) : logs.length === 0 ? (
               <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-8 text-center text-[0.78rem] text-muted-foreground">
-                No reminders sent yet. Send yourself a test to confirm delivery.
+                No reminders logged yet. Use the test reminder to check your local reminder history.
               </p>
             ) : (
               <ul className="mt-4 space-y-2">
