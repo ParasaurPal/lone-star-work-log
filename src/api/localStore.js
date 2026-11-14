@@ -2,8 +2,8 @@ const STORAGE_PREFIX = "lonestar_worklog_";
 
 const LOCAL_USER = {
   id: "local-user-1",
-  email: "dakota.brohammer@gmail.com",
-  full_name: "Dakota Brohammer",
+  email: "",
+  full_name: "Local workspace",
   role: "admin",
 };
 
