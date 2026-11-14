@@ -14,6 +14,9 @@ public class ShareIntentPlugin extends Plugin {
     @PluginMethod
     public void getPendingShare(PluginCall call) {
         JSObject payload = fromIntent(getActivity().getIntent());
+        if (payload != null) {
+            getActivity().setIntent(new Intent(getActivity(), MainActivity.class));
+        }
         call.resolve(payload == null ? new JSObject() : payload);
     }
 
