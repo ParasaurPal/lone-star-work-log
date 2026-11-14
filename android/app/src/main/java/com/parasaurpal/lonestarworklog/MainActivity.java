@@ -11,12 +11,11 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(ShareIntentPlugin.class);
         super.onCreate(savedInstanceState);
 
-        // Set a solid dark background behind the status/nav bars
         getWindow().getDecorView().setBackgroundColor(Color.parseColor("#0f172a"));
 
-        // Physically push the WebView content below the status bar and above the gesture bar
         View rootView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, windowInsets) -> {
             Insets bars = windowInsets.getInsets(
