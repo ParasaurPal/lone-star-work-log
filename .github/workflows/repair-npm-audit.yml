@@ -24,6 +24,9 @@ jobs:
       - name: Update vulnerable Zod patch line
         run: npm install --package-lock-only --ignore-scripts zod@^4.6.7
 
+      - name: Remove unused vulnerable rich-text editor
+        run: npm uninstall react-quill-new
+
       - name: Install locked dependencies
         run: npm ci
 
