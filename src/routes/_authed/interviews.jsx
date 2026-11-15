@@ -90,7 +90,7 @@ function InterviewsPage() {
               onClick={() => setImportOpen(true)}
             >
               <ImagePlus className="h-3.5 w-3.5" />
-              Upload screenshot
+              Import screenshot text
             </Button>
             <Button
               className="h-9 gap-1.5 rounded-full px-4 text-[0.8rem]"
@@ -148,14 +148,14 @@ function InterviewsPage() {
             {filter === "past" ? "No past interviews" : "No interviews scheduled"}
           </h2>
           <p className="mt-1.5 max-w-sm text-[0.8rem] leading-relaxed text-muted-foreground">
-            Upload the invite email and we'll read the company, time, and location for you.
+            Copy the text from your invite email or screenshot and paste it to prefill the details.
           </p>
           <Button
             className="mt-5 h-9 rounded-full px-5 text-[0.8rem]"
             onClick={() => setImportOpen(true)}
           >
             <ImagePlus className="h-3.5 w-3.5" />
-            Upload an invite
+            Import invite text
           </Button>
         </div>
       ) : (
