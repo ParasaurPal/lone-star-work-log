@@ -70,7 +70,7 @@ function ExportPage() {
       downloadTwcPdf(
         {
           entries: selected,
-          filedWeeks,
+          filedWeeks: filedWeeks.filter((week) => selected.some((entry) => entry.twc_week_ending === week.week_ending)),
           claimant: { name: claimant || user?.full_name || "Claimant", email: user?.email || "" },
           rangeLabel,
           goal,
