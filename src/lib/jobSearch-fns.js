@@ -41,19 +41,6 @@ const LEVEL_ALIASES = {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const GENERIC_LOCATIONS = [
-  "anywhere",
-  "worldwide",
-  "remote",
-  "usa",
-  "u.s.",
-  "united states",
-  "nationwide",
-  "global",
-  "americas",
-  "north america",
-];
-
 export function stripHtml(html = "") {
   return String(html)
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
