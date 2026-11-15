@@ -20,8 +20,10 @@ export function weekEndingSaturday(value) {
 }
 
 export function weekStartingSunday(value) {
-  const end = weekEndingSaturday(value);
-  return new Date(end.getTime() - 6 * DAY);
+  const start = weekEndingSaturday(value);
+  if (Number.isNaN(start.getTime())) return start;
+  start.setDate(start.getDate() - 6);
+  return start;
 }
 
 export function isoDate(value) {
@@ -45,7 +47,7 @@ export function shortDate(value) {
 export function weekRangeLabel(value) {
   const end = weekEndingSaturday(value);
   if (Number.isNaN(end.getTime())) return "Invalid week";
-  const start = new Date(end.getTime() - 6 * DAY);
+  const start = weekStartingSunday(value);
   const sameMonth = start.getMonth() === end.getMonth();
   const startLabel = start.toLocaleDateString("en-US", {
     month: "short",
@@ -62,11 +64,15 @@ export function weekRangeLabel(value) {
 
 export function shiftWeek(value, weeks) {
   const date = weekEndingSaturday(value);
-  return new Date(date.getTime() + weeks * 7 * DAY);
+  if (Number.isNaN(date.getTime())) return date;
+  date.setDate(date.getDate() + weeks * 7);
+  return date;
 }
 
 export function daysLeftInWeek(value) {
   const end = weekEndingSaturday(value);
   const today = startOfDay();
-  return Math.max(0, Math.round((end.getTime() - today.getTime()) / DAY));
+  const endDay = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+  const todayDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.max(0, Math.round((endDay - todayDay) / DAY));
 }
