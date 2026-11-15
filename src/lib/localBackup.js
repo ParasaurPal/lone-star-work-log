@@ -176,13 +176,33 @@ export async function readBackupFile(file, password) {
 
 export async function downloadLocalBackup(password) {
   const backup = await createEncryptedLocalBackup(password);
+  const filename = `lonestar-worklog-encrypted-backup-${new Date().toISOString().slice(0, 10)}.json`;
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const file = typeof File !== "undefined"
+    ? new File([blob], filename, { type: "application/json" })
+    : null;
+
+  // Android's native share sheet lets the user choose any installed storage app
+  // without granting this app access to that provider or storing provider tokens.
+  if (file && typeof navigator !== "undefined" &&
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function" &&
+      navigator.canShare({ files: [file] })) {
+    await navigator.share({
+      files: [file],
+      title: "LoneStar WorkLog encrypted backup",
+      text: "Encrypted with your backup password. Store the file and password separately.",
+    });
+    return "shared";
+  }
+
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `lonestar-worklog-encrypted-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  anchor.download = filename;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return "downloaded";
 }
