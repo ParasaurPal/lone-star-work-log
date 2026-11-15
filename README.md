@@ -23,7 +23,7 @@ Offline-first Texas Workforce Commission (TWC) work-search tracker, interview sc
 
 Requirements: Node.js 22 and Java 21 for Android builds.
 
-Run npm ci, npm run lint, npm run build, npx cap sync android, then ./gradlew assembleDebug from the android directory.
+Run npm ci, npm run lint, npm test, npm run build, npx cap sync android, then ./gradlew assembleDebug from the android directory.
 
 GitHub Actions runs lint, web build, and Android debug APK compilation on pull requests and pushes to main. Debug APKs are uploaded as workflow artifacts; they are not production-signed releases.
 
