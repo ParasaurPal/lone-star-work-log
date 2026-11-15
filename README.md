@@ -9,6 +9,7 @@ Offline-first Texas Workforce Commission (TWC) work-search tracker, interview sc
 - Exported backups use PBKDF2-SHA-256 key derivation and AES-256-GCM encryption. The password is not stored in the app.
 - On supported Android devices, an encrypted backup can be shared through the system share sheet to a storage provider chosen by the user. Otherwise, it downloads as a file for manual upload.
 - Older unencrypted JSON backups remain importable for compatibility.
+- The locked npm dependency tree is audited in CI; the current audit has no reported vulnerabilities.
 - Local application data itself is currently not encrypted at rest. Use the Android device lock and keep the app/device protected. Encrypted backups do not change the at-rest storage format.
 
 ## Offline behavior and integrations
