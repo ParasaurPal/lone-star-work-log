@@ -48,12 +48,31 @@ export default function SharedJobImportDialog({ open, onOpenChange, shared }) {
       toast.error("Add the position, company, and application date.");
       return;
     }
+    if (Number.isNaN(new Date(dateApplied).getTime())) {
+      toast.error("Choose a valid application date.");
+      return;
+    }
+    if (values.url) {
+      try {
+        const parsedUrl = new URL(values.url);
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error("Unsupported URL");
+      } catch {
+        toast.error("Enter a valid http or https job posting link.");
+        return;
+      }
+    }
     setSaving(true);
     try {
-      const existingApps = values.url
-        ? await localStore.entities.JobApplication.filter({ job_posting_url: values.url })
-        : [];
-      if (existingApps.length) {
+      const existingApps = await localStore.entities.JobApplication.list();
+      const normalizedCompany = values.company.trim().toLowerCase();
+      const normalizedTitle = values.title.trim().toLowerCase();
+      const duplicate = existingApps.some((entry) =>
+        (values.url && entry.job_posting_url === values.url) ||
+        (entry.date_applied === dateApplied &&
+          String(entry.company_name || "").trim().toLowerCase() === normalizedCompany &&
+          String(entry.position_title || "").trim().toLowerCase() === normalizedTitle)
+      );
+      if (duplicate) {
         toast.info("This posting is already in your application tracker.");
         onOpenChange(false);
         return;
@@ -73,31 +92,37 @@ export default function SharedJobImportDialog({ open, onOpenChange, shared }) {
       });
 
       if (values.url) {
-        const saved = await localStore.entities.SavedJob.filter({ url: values.url });
-        if (saved.length) {
-          await localStore.entities.SavedJob.update(saved[0].id, {
-            status: "applied",
-            application_id: application.id,
-            date_applied: dateApplied,
-          });
-        } else {
-          await localStore.entities.SavedJob.create({
-            title: values.title.trim(),
-            company: values.company.trim(),
-            location: values.location.trim(),
-            url: values.url,
-            source: "shared",
-            source_label: "Shared posting",
-            status: "applied",
-            application_id: application.id,
-            date_applied: dateApplied,
-          });
+        try {
+          const saved = await localStore.entities.SavedJob.filter({ url: values.url });
+          if (saved.length) {
+            await localStore.entities.SavedJob.update(saved[0].id, {
+              status: "applied",
+              application_id: application.id,
+              date_applied: dateApplied,
+            });
+          } else {
+            await localStore.entities.SavedJob.create({
+              title: values.title.trim(),
+              company: values.company.trim(),
+              location: values.location.trim(),
+              url: values.url,
+              source: "shared",
+              source_label: "Shared posting",
+              status: "applied",
+              application_id: application.id,
+              date_applied: dateApplied,
+            });
+          }
+        } catch {
+          toast.warning("The application was logged, but the saved-job status could not be updated. Check your application tracker.");
+          onOpenChange(false);
+          return;
         }
       }
       toast.success("Application logged for " + dateApplied);
       onOpenChange(false);
     } catch {
-      toast.error("Couldn't log that application. Your shared posting is still available to retry.");
+      toast.error("Couldn't create the application. Your shared posting is still available to retry.");
     } finally {
       setSaving(false);
     }
