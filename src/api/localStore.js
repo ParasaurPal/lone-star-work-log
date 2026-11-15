@@ -7,19 +7,46 @@ const LOCAL_USER = {
   role: "admin",
 };
 
+function notifyStorageChanged(name) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("lonestar-worklog:storage-changed", { detail: { collection: name } }));
+}
+
 function readCollection(name) {
   if (typeof window === "undefined") return [];
+  const key = STORAGE_PREFIX + name;
+  let raw;
   try {
-    const raw = window.localStorage.getItem(STORAGE_PREFIX + name);
-    return raw ? JSON.parse(raw) : [];
+    raw = window.localStorage.getItem(key);
+  } catch (error) {
+    throw new Error("LoneStar WorkLog cannot access this device's storage. Check browser storage permissions and available space.");
+  }
+  if (raw === null) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) throw new Error("Collection is not an array");
+    return parsed;
   } catch {
-    return [];
+    throw new Error(`The local "${name}" records could not be read. Your original data was left untouched; export or recover a backup before continuing.`);
   }
 }
 
 function writeCollection(name, items) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(items));
+  if (typeof window === "undefined") throw new Error("Local storage is unavailable.");
+  try {
+    window.localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(items));
+  } catch (error) {
+    if (error?.name === "QuotaExceededError" || error?.code === 22) {
+      throw new Error("Device storage is full. Export a backup or free space before saving more records.");
+    }
+    throw new Error("Your changes could not be saved to device storage.");
+  }
+  notifyStorageChanged(name);
+}
+
+function makeId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 }
 
 function sortItems(items, sortStr) {
@@ -46,13 +73,13 @@ function createEntityStore(name) {
   return {
     async list(sort, limit) {
       let items = sortItems(readCollection(name), sort);
-      if (limit) items = items.slice(0, limit);
+      if (Number.isInteger(limit) && limit >= 0) items = items.slice(0, limit);
       return items;
     },
     async filter(query = {}, options = {}) {
       let items = readCollection(name).filter((item) => matchesQuery(item, query));
       if (options.sort) items = sortItems(items, options.sort);
-      if (options.limit) items = items.slice(0, options.limit);
+      if (Number.isInteger(options.limit) && options.limit >= 0) items = items.slice(0, options.limit);
       return items;
     },
     async count(query = {}) {
@@ -62,10 +89,10 @@ function createEntityStore(name) {
       const items = readCollection(name);
       const now = new Date().toISOString();
       const record = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        ...payload,
+        id: makeId(),
         created_date: now,
         updated_date: now,
-        ...payload,
       };
       items.unshift(record);
       writeCollection(name, items);
@@ -78,14 +105,16 @@ function createEntityStore(name) {
       items[idx] = {
         ...items[idx],
         ...payload,
+        id: items[idx].id,
         updated_date: new Date().toISOString(),
       };
       writeCollection(name, items);
       return items[idx];
     },
     async delete(id) {
-      const items = readCollection(name).filter((item) => item.id !== id);
-      writeCollection(name, items);
+      const items = readCollection(name);
+      const next = items.filter((item) => item.id !== id);
+      if (next.length !== items.length) writeCollection(name, next);
       return { success: true };
     },
   };
@@ -118,15 +147,21 @@ export const localStore = {
   },
   integrations: {
     Core: {
-      UploadPrivateFile: async ({ file }) => ({
-        file_url: typeof URL !== "undefined" ? URL.createObjectURL(file) : "",
-        file_name: file?.name ?? "screenshot.png",
-      }),
+      UploadPrivateFile: async ({ file }) => {
+        if (!file) throw new Error("Choose a file first.");
+        return {
+          file_url: typeof URL !== "undefined" ? URL.createObjectURL(file) : "",
+          file_name: file.name || "screenshot",
+          file_type: file.type || "application/octet-stream",
+        };
+      },
       CreateFileSignedUrl: async ({ file_url }) => ({ signed_url: file_url }),
       InvokeLLM: async () => {
-        throw new Error("Cloud OCR/LLM disabled in offline mode. Enter details manually.");
+        throw new Error("Cloud OCR is unavailable in offline mode. Enter the details manually.");
       },
-      SendEmail: async () => ({ success: true }),
+      SendEmail: async () => {
+        throw new Error("Email delivery is not configured in this offline-first app.");
+      },
     },
   },
 };
