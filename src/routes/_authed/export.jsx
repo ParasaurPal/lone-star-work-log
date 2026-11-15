@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/AuthContext";
-import { useApplications } from "@/lib/useLogData";
+import { useApplications, useFiledWeeks, useNotificationSettings } from "@/lib/useLogData";
 import { downloadTwcPdf } from "@/lib/twcPdf";
 import { formatDate, todayInput } from "@/lib/format";
 import { isoDate, shiftWeek, weekEndingSaturday, weekRangeLabel } from "@/lib/twcWeeks";
@@ -28,6 +28,9 @@ const RANGES = [
 function ExportPage() {
   const { user } = useAuth();
   const { items, loading } = useApplications();
+  const { items: filedWeeks } = useFiledWeeks();
+  const { settings } = useNotificationSettings();
+  const goal = Number(settings?.weekly_search_goal || 5);
   const [range, setRange] = useState("week");
   const [from, setFrom] = useState(isoDate(shiftWeek(weekEndingSaturday(), -3)));
   const [to, setTo] = useState(todayInput());
@@ -45,7 +48,7 @@ function ExportPage() {
       const start = isoDate(shiftWeek(weekEndingSaturday(), -3));
       return sorted.filter((item) => (item.twc_week_ending || "") >= start);
     }
-    if (!from || !to) return sorted;
+    if (!from || !to || from > to) return [];
     return sorted.filter(
       (item) => item.date_applied >= from && item.date_applied <= to,
     );
@@ -67,9 +70,10 @@ function ExportPage() {
       downloadTwcPdf(
         {
           entries: selected,
+          filedWeeks,
           claimant: { name: claimant || user?.full_name || "Claimant", email: user?.email || "" },
           rangeLabel,
-          goal: 5,
+          goal,
         },
         `twc-work-search-log-${isoDate(new Date())}.pdf`,
       );
@@ -156,7 +160,7 @@ function ExportPage() {
           <Button
             className="h-10 w-full gap-2 rounded-full text-[0.82rem]"
             onClick={generate}
-            disabled={working || selected.length === 0}
+            disabled={working || selected.length === 0 || (range === "custom" && (!from || !to || from > to))}
           >
             {working ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
             {working ? "Building your PDF…" : "Export TWC Log (PDF)"}
