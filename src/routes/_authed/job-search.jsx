@@ -19,7 +19,6 @@ export const Route = createFileRoute("/_authed/job-search")({
 const EMPTY_FORM = {
   keywords: "",
   location: "",
-  radius: 0,
   salaryMin: 0,
   jobType: "any",
   level: "any",
@@ -128,7 +127,7 @@ function JobSearchPage() {
         <div className="paper-panel px-6 py-12 text-center">
           <h2 className="display-title text-lg">No listings matched</h2>
           <p className="mx-auto mt-1.5 max-w-sm text-[0.8rem] leading-relaxed text-muted-foreground">
-            Widen the distance, drop the minimum salary, or try a broader keyword.
+            Remove the location filter, lower the salary minimum, or try a broader keyword.
           </p>
         </div>
       ) : (
