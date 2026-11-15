@@ -77,7 +77,7 @@ export default function JobSearchForm({ form, onChange, onSubmit, searching }) {
         onSubmit();
       }}
     >
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_9rem]">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label className="text-[0.7rem] font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Keywords
