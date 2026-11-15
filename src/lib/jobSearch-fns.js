@@ -41,19 +41,6 @@ const LEVEL_ALIASES = {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const GENERIC_LOCATIONS = [
-  "anywhere",
-  "worldwide",
-  "remote",
-  "usa",
-  "u.s.",
-  "united states",
-  "nationwide",
-  "global",
-  "americas",
-  "north america",
-];
-
 export function stripHtml(html = "") {
   return String(html)
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -94,18 +81,18 @@ function salaryFromRange(min, max, currency) {
 }
 
 function parseSalaryRange(text) {
-  const raw = String(text || "").toLowerCase();
-  const numbers = raw.replace(/,/g, "").match(/\d+(\.\d+)?/g);
-  if (!numbers) return { min: 0, max: 0 };
-  const values = numbers.map(Number).filter((n) => n > 0);
+  const raw = String(text || "").toLowerCase().replace(/,/g, "");
+  const matches = [...raw.matchAll(/(\d+(?:\.\d+)?)\s*(k)?/g)];
+  const values = matches
+    .map((match) => Number(match[1]) * (match[2] ? 1000 : 1))
+    .filter((number) => Number.isFinite(number) && number > 0);
   if (!values.length) return { min: 0, max: 0 };
   let scale = 1;
   if (/hour|hr\b/.test(raw)) scale = 2080;
   else if (/month/.test(raw)) scale = 12;
   else if (/week/.test(raw)) scale = 52;
   else if (/day/.test(raw)) scale = 250;
-  else if (Math.max(...values) < 1000) scale = 2080;
-  const scaled = values.map((n) => Math.round(n * scale));
+  const scaled = values.map((number) => Math.round(number * scale));
   return { min: Math.min(...scaled), max: Math.max(...scaled) };
 }
 
@@ -214,27 +201,20 @@ async function remoteOkJobs({ keywords }) {
     });
 }
 
-function locationMatches(jobLocation, wanted, radius) {
+function locationMatches(jobLocation, wanted) {
   if (!wanted) return true;
-  const loc = String(jobLocation || "").toLowerCase();
+  const loc = String(jobLocation || "").toLowerCase().trim();
   const needle = wanted.toLowerCase().trim();
-  if (!loc) return true;
-  if (!radius) return true;
+  if (!loc) return false;
   if (loc.includes(needle)) return true;
-  const [city, region] = needle.split(",").map((part) => part.trim()).filter(Boolean);
-  const cityMatch = city ? loc.includes(city) : false;
-  const regionMatch = region ? loc.includes(region) : false;
-  const generic = GENERIC_LOCATIONS.some((word) => loc.includes(word));
-  if (radius <= 25) return cityMatch;
-  if (radius <= 50) return cityMatch || regionMatch;
-  return cityMatch || regionMatch || generic;
+  const parts = needle.split(",").map((part) => part.trim()).filter(Boolean);
+  return parts.every((part) => part.length > 1 && loc.includes(part));
 }
 
 export async function searchJobs({ data = {} } = {}) {
   const input = {
     keywords: String(data.keywords || ""),
     location: String(data.location || ""),
-    radius: Number(data.radius) || 0,
     salaryMin: Number(data.salaryMin) || 0,
     jobType: String(data.jobType || "any"),
     level: String(data.level || "any"),
@@ -273,14 +253,14 @@ export async function searchJobs({ data = {} } = {}) {
       const haystack = `${job.title} ${job.company} ${job.description}`.toLowerCase();
       if (!tokens.some((token) => haystack.includes(token))) return false;
     }
-    if (input.salaryMin > 0 && job.salary_max && job.salary_max < input.salaryMin) return false;
-    if (input.jobType !== "any" && job.type && job.type !== input.jobType) return false;
-    if (input.level !== "any" && job.level && job.level !== input.level) return false;
+    if (input.salaryMin > 0 && (!job.salary_min || job.salary_min < input.salaryMin)) return false;
+    if (input.jobType !== "any" && job.type !== input.jobType) return false;
+    if (input.level !== "any" && job.level !== input.level) return false;
     if (input.remoteOnly && !job.remote) return false;
-    if (!locationMatches(job.location, input.location.trim(), input.radius)) return false;
+    if (!locationMatches(job.location, input.location.trim())) return false;
     if (cutoff) {
       const posted = new Date(job.posted_at).getTime();
-      if (Number.isFinite(posted) && posted < cutoff) return false;
+      if (!job.posted_at || !Number.isFinite(posted) || posted < cutoff) return false;
     }
     return true;
   });

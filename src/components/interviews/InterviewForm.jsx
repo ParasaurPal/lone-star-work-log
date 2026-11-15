@@ -45,6 +45,7 @@ export default function InterviewForm({ open, onOpenChange, interview, initial, 
     if (!values.company_name?.trim()) next.company_name = "Add the company name.";
     if (!values.position_title?.trim()) next.position_title = "Add the position.";
     if (!values.interview_date_time) next.interview_date_time = "When is the interview?";
+    else if (Number.isNaN(new Date(values.interview_date_time).getTime())) next.interview_date_time = "Enter a valid interview date and time.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 

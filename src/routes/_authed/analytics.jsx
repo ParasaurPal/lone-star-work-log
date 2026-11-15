@@ -43,8 +43,16 @@ function AnalyticsPage() {
     );
     const offers = items.filter((item) => item.status === "Offer Received");
 
-    const gaps = interviews
+    const firstInterviewByApplication = new Map();
+    [...interviews]
       .filter((interview) => interview.application_id)
+      .sort((a, b) => new Date(a.interview_date_time).getTime() - new Date(b.interview_date_time).getTime())
+      .forEach((interview) => {
+        if (!firstInterviewByApplication.has(interview.application_id)) {
+          firstInterviewByApplication.set(interview.application_id, interview);
+        }
+      });
+    const gaps = [...firstInterviewByApplication.values()]
       .map((interview) => {
         const app = items.find((item) => item.id === interview.application_id);
         if (!app?.date_applied) return null;

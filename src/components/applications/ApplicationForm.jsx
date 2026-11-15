@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { METHOD_OPTIONS, STATUS_OPTIONS } from "@/components/appNav";
 import { todayInput } from "@/lib/format";
-import { isoDate, weekEndingSaturday } from "@/lib/twcWeeks";
+import { isoDate, isSaturday, weekEndingSaturday } from "@/lib/twcWeeks";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -45,7 +45,7 @@ export default function ApplicationForm({ open, onOpenChange, application, initi
           twc_week_ending: isoDate(weekEndingSaturday()),
           ...(initial || {}),
         };
-    if (!base.twc_week_ending && base.date_applied) {
+    if (base.date_applied && (!application?.twc_week_ending || !initial?.twc_week_ending)) {
       base.twc_week_ending = isoDate(weekEndingSaturday(base.date_applied));
     }
     setValues(base);
@@ -66,6 +66,10 @@ export default function ApplicationForm({ open, onOpenChange, application, initi
   const validate = () => {
     const next = {};
     if (!values.date_applied) next.date_applied = "Pick the date you applied.";
+    if (values.date_applied && values.twc_week_ending) {
+      if (!isSaturday(values.twc_week_ending)) next.twc_week_ending = "The reporting week must end on a Saturday.";
+      else if (isoDate(weekEndingSaturday(values.date_applied)) !== values.twc_week_ending) next.twc_week_ending = "Choose the Saturday that ends the week containing your contact date.";
+    }
     if (!values.company_name?.trim()) next.company_name = "Who did you contact?";
     if (!values.position_title?.trim()) next.position_title = "What position did you apply for?";
     if (!values.job_location?.trim()) next.job_location = "Add a city/state, or type Remote.";
@@ -136,6 +140,9 @@ export default function ApplicationForm({ open, onOpenChange, application, initi
                 value={values.twc_week_ending}
                 onChange={(event) => set("twc_week_ending", event.target.value)}
               />
+              {errors.twc_week_ending ? (
+                <p className="text-[0.72rem] font-medium text-destructive">{errors.twc_week_ending}</p>
+              ) : null}
             </Field>
           </div>
 

@@ -2,9 +2,6 @@
   "appId": "com.parasaurpal.lonestarworklog",
   "appName": "LoneStar WorkLog",
   "webDir": "dist/client",
-  "android": {
-    "allowMixedContent": true
-  },
   "plugins": {
     "StatusBar": {
       "overlaysWebView": false,

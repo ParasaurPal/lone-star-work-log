@@ -27,3 +27,7 @@ src/routeTree.gen.ts
 .DS_Store
 *.sw?
 
+
+# Never commit local signing credentials
+*.keystore
+*.jks
