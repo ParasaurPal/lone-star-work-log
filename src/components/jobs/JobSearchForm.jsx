@@ -37,14 +37,6 @@ const LEVEL_OPTIONS = [
   { value: "executive", label: "Executive" },
 ];
 
-const RADIUS_OPTIONS = [
-  { value: "0", label: "Any distance" },
-  { value: "25", label: "Within 25 mi" },
-  { value: "50", label: "Within 50 mi" },
-  { value: "100", label: "Within 100 mi" },
-  { value: "200", label: "Within 200 mi" },
-];
-
 const DATE_OPTIONS = [
   { value: "1", label: "Past 24 hours" },
   { value: "7", label: "Past week" },
@@ -111,13 +103,9 @@ export default function JobSearchForm({ form, onChange, onSubmit, searching }) {
             className="h-9 text-[0.82rem]"
           />
         </div>
-        <Pick
-          label="Distance"
-          value={form.radius}
-          options={RADIUS_OPTIONS}
-          onChange={(value) => set("radius")(Number(value))}
-        />
+
       </div>
+      <p className="text-[0.68rem] text-muted-foreground">Location filtering matches the city or region stated by each job board. Exact mileage is not available from these sources, so no unverified distance radius is applied.</p>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Pick
