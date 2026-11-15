@@ -49,6 +49,9 @@ jobs:
       - name: Lint application
         run: npm run lint
 
+      - name: Run core tests
+        run: npm test
+
       - name: Build Vite application
         run: npm run build
 
