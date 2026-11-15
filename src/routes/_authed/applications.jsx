@@ -147,7 +147,7 @@ function ApplicationsPage() {
               onClick={() => setImportOpen(true)}
             >
               <ImagePlus className="h-3.5 w-3.5" />
-              Upload screenshot
+              Import screenshot text
             </Button>
             <Button className="h-9 gap-1.5 rounded-full px-4 text-[0.8rem]" onClick={openNew}>
               <Plus className="h-3.5 w-3.5" />
@@ -218,7 +218,7 @@ function ApplicationsPage() {
           </h2>
           <p className="mt-1.5 max-w-sm text-[0.8rem] leading-relaxed text-muted-foreground">
             {items.length === 0
-              ? "Log your first application, or upload a screenshot of the confirmation email and we'll fill it in for you."
+              ? "Log your first application, or paste text copied from a confirmation email or screenshot to prefill the details."
               : "Try a different week or clear the search to see the rest of your record."}
           </p>
           {items.length === 0 ? (
