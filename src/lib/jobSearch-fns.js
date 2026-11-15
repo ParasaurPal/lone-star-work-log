@@ -81,18 +81,18 @@ function salaryFromRange(min, max, currency) {
 }
 
 function parseSalaryRange(text) {
-  const raw = String(text || "").toLowerCase();
-  const numbers = raw.replace(/,/g, "").match(/\d+(\.\d+)?/g);
-  if (!numbers) return { min: 0, max: 0 };
-  const values = numbers.map(Number).filter((n) => n > 0);
+  const raw = String(text || "").toLowerCase().replace(/,/g, "");
+  const matches = [...raw.matchAll(/(\d+(?:\.\d+)?)\s*(k)?/g)];
+  const values = matches
+    .map((match) => Number(match[1]) * (match[2] ? 1000 : 1))
+    .filter((number) => Number.isFinite(number) && number > 0);
   if (!values.length) return { min: 0, max: 0 };
   let scale = 1;
   if (/hour|hr\b/.test(raw)) scale = 2080;
   else if (/month/.test(raw)) scale = 12;
   else if (/week/.test(raw)) scale = 52;
   else if (/day/.test(raw)) scale = 250;
-  else if (Math.max(...values) < 1000) scale = 2080;
-  const scaled = values.map((n) => Math.round(n * scale));
+  const scaled = values.map((number) => Math.round(number * scale));
   return { min: Math.min(...scaled), max: Math.max(...scaled) };
 }
 
