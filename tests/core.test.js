@@ -25,7 +25,7 @@ globalThis.window = {
   dispatchEvent: () => true,
 };
 
-const { isoDate, weekEndingSaturday, isSaturday } = await import("../src/lib/twcWeeks.js");
+const { isoDate, weekEndingSaturday, weekStartingSunday, shiftWeek, isSaturday } = await import("../src/lib/twcWeeks.js");
 const { createEncryptedLocalBackup, decryptLocalBackup, restoreLocalBackup } = await import("../src/lib/localBackup.js");
 
 test("TWC week calculations preserve date-only values in a western timezone", () => {
@@ -33,6 +33,8 @@ test("TWC week calculations preserve date-only values in a western timezone", ()
   assert.equal(isoDate(weekEndingSaturday("2026-11-15")), "2026-11-21");
   assert.equal(isSaturday("2026-11-21"), true);
   assert.equal(isSaturday("2026-11-22"), false);
+  assert.equal(isoDate(weekStartingSunday("2026-03-14")), "2026-03-08");
+  assert.equal(isoDate(shiftWeek("2026-03-14", -1)), "2026-03-07");
 });
 
 test("encrypted backups hide record contents and require the correct password", async () => {
