@@ -1,7 +1,7 @@
 const LABELS = {
   company_name: /^(?:company|employer|business|organization)\s*[:\-]\s*(.+)$/i,
   position_title: /^(?:position|job title|role|title)\s*[:\-]\s*(.+)$/i,
-  job_location: /^(?:job location|work location)\\s*[:\\-]\\s*(.+)$/i,
+  job_location: /^(?:job location|work location)\s*[:\-]\s*(.+)$/i,
   interview_date_time: /^(?:interview date|interview time|date and time|when)\s*[:\-]\s*(.+)$/i,
   contact_info: /^(?:contact|contact person|recruiter|email|phone)\s*[:\-]\s*(.+)$/i,
 };
