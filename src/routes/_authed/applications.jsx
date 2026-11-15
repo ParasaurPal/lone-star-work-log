@@ -117,8 +117,14 @@ function ApplicationsPage() {
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     try {
+      const linkedInterviews = await localStore.entities.Interview.filter({ application_id: pendingDelete.id });
+      for (const interview of linkedInterviews) {
+        await localStore.entities.Interview.delete(interview.id);
+      }
       await localStore.entities.JobApplication.delete(pendingDelete.id);
-      toast.success("Application removed");
+      toast.success(linkedInterviews.length
+        ? "Application and linked interview record(s) removed"
+        : "Application removed");
       refresh();
     } catch (err) {
       toast.error("Couldn't remove that entry.");
