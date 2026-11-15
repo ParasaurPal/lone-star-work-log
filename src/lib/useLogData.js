@@ -26,6 +26,14 @@ export function useApplications() {
 
   useEffect(() => {
     reload();
+    if (typeof window === "undefined") return undefined;
+    const refresh = () => reload();
+    window.addEventListener("storage", refresh);
+    window.addEventListener("lonestar-worklog:storage-changed", refresh);
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("lonestar-worklog:storage-changed", refresh);
+    };
   }, [reload]);
 
   return { items, loading, reload };
@@ -50,6 +58,14 @@ export function useInterviews() {
 
   useEffect(() => {
     reload();
+    if (typeof window === "undefined") return undefined;
+    const refresh = () => reload();
+    window.addEventListener("storage", refresh);
+    window.addEventListener("lonestar-worklog:storage-changed", refresh);
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("lonestar-worklog:storage-changed", refresh);
+    };
   }, [reload]);
 
   return { items, loading, reload };
@@ -83,6 +99,14 @@ export function useNotificationSettings() {
 
   useEffect(() => {
     reload();
+    if (typeof window === "undefined") return undefined;
+    const refresh = () => reload();
+    window.addEventListener("storage", refresh);
+    window.addEventListener("lonestar-worklog:storage-changed", refresh);
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("lonestar-worklog:storage-changed", refresh);
+    };
   }, [reload]);
 
   return { settings, loading, reload, setSettings, DEFAULT_SETTINGS };
@@ -107,6 +131,14 @@ export function useFiledWeeks() {
 
   useEffect(() => {
     reload();
+    if (typeof window === "undefined") return undefined;
+    const refresh = () => reload();
+    window.addEventListener("storage", refresh);
+    window.addEventListener("lonestar-worklog:storage-changed", refresh);
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("lonestar-worklog:storage-changed", refresh);
+    };
   }, [reload]);
 
   return { items, loading, reload };
@@ -131,6 +163,14 @@ export function useNotificationLogs() {
 
   useEffect(() => {
     reload();
+    if (typeof window === "undefined") return undefined;
+    const refresh = () => reload();
+    window.addEventListener("storage", refresh);
+    window.addEventListener("lonestar-worklog:storage-changed", refresh);
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("lonestar-worklog:storage-changed", refresh);
+    };
   }, [reload]);
 
   return { items, loading, reload };
