@@ -214,27 +214,20 @@ async function remoteOkJobs({ keywords }) {
     });
 }
 
-function locationMatches(jobLocation, wanted, radius) {
+function locationMatches(jobLocation, wanted) {
   if (!wanted) return true;
-  const loc = String(jobLocation || "").toLowerCase();
+  const loc = String(jobLocation || "").toLowerCase().trim();
   const needle = wanted.toLowerCase().trim();
-  if (!loc) return true;
-  if (!radius) return true;
+  if (!loc) return false;
   if (loc.includes(needle)) return true;
-  const [city, region] = needle.split(",").map((part) => part.trim()).filter(Boolean);
-  const cityMatch = city ? loc.includes(city) : false;
-  const regionMatch = region ? loc.includes(region) : false;
-  const generic = GENERIC_LOCATIONS.some((word) => loc.includes(word));
-  if (radius <= 25) return cityMatch;
-  if (radius <= 50) return cityMatch || regionMatch;
-  return cityMatch || regionMatch || generic;
+  const parts = needle.split(",").map((part) => part.trim()).filter(Boolean);
+  return parts.some((part) => part.length > 1 && loc.includes(part));
 }
 
 export async function searchJobs({ data = {} } = {}) {
   const input = {
     keywords: String(data.keywords || ""),
     location: String(data.location || ""),
-    radius: Number(data.radius) || 0,
     salaryMin: Number(data.salaryMin) || 0,
     jobType: String(data.jobType || "any"),
     level: String(data.level || "any"),
@@ -273,14 +266,14 @@ export async function searchJobs({ data = {} } = {}) {
       const haystack = `${job.title} ${job.company} ${job.description}`.toLowerCase();
       if (!tokens.some((token) => haystack.includes(token))) return false;
     }
-    if (input.salaryMin > 0 && job.salary_max && job.salary_max < input.salaryMin) return false;
-    if (input.jobType !== "any" && job.type && job.type !== input.jobType) return false;
-    if (input.level !== "any" && job.level && job.level !== input.level) return false;
+    if (input.salaryMin > 0 && (!job.salary_max || job.salary_max < input.salaryMin)) return false;
+    if (input.jobType !== "any" && job.type !== input.jobType) return false;
+    if (input.level !== "any" && job.level !== input.level) return false;
     if (input.remoteOnly && !job.remote) return false;
-    if (!locationMatches(job.location, input.location.trim(), input.radius)) return false;
+    if (!locationMatches(job.location, input.location.trim())) return false;
     if (cutoff) {
       const posted = new Date(job.posted_at).getTime();
-      if (Number.isFinite(posted) && posted < cutoff) return false;
+      if (!job.posted_at || !Number.isFinite(posted) || posted < cutoff) return false;
     }
     return true;
   });
