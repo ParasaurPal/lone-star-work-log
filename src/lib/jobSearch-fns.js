@@ -208,7 +208,7 @@ function locationMatches(jobLocation, wanted) {
   if (!loc) return false;
   if (loc.includes(needle)) return true;
   const parts = needle.split(",").map((part) => part.trim()).filter(Boolean);
-  return parts.some((part) => part.length > 1 && loc.includes(part));
+  return parts.every((part) => part.length > 1 && loc.includes(part));
 }
 
 export async function searchJobs({ data = {} } = {}) {
