@@ -1,9 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { webcrypto } from "node:crypto";
-
 process.env.TZ = "America/Los_Angeles";
-globalThis.crypto = webcrypto;
 globalThis.btoa ??= (value) => Buffer.from(value, "binary").toString("base64");
 globalThis.atob ??= (value) => Buffer.from(value, "base64").toString("binary");
 globalThis.CustomEvent ??= class extends Event {
