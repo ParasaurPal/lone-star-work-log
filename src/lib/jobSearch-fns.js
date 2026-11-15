@@ -253,7 +253,7 @@ export async function searchJobs({ data = {} } = {}) {
       const haystack = `${job.title} ${job.company} ${job.description}`.toLowerCase();
       if (!tokens.some((token) => haystack.includes(token))) return false;
     }
-    if (input.salaryMin > 0 && (!job.salary_max || job.salary_max < input.salaryMin)) return false;
+    if (input.salaryMin > 0 && (!job.salary_min || job.salary_min < input.salaryMin)) return false;
     if (input.jobType !== "any" && job.type !== input.jobType) return false;
     if (input.level !== "any" && job.level !== input.level) return false;
     if (input.remoteOnly && !job.remote) return false;
