@@ -45,7 +45,7 @@ export default function ApplicationForm({ open, onOpenChange, application, initi
           twc_week_ending: isoDate(weekEndingSaturday()),
           ...(initial || {}),
         };
-    if (!base.twc_week_ending && base.date_applied) {
+    if (base.date_applied && (!application?.twc_week_ending || !initial?.twc_week_ending)) {
       base.twc_week_ending = isoDate(weekEndingSaturday(base.date_applied));
     }
     setValues(base);
