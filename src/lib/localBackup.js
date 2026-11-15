@@ -43,7 +43,6 @@ function validateBackup(backup) {
     throw new Error("This file is not a valid LoneStar WorkLog backup.");
   }
   const entries = Object.entries(backup.collections);
-  if (!entries.length) throw new Error("The backup does not contain any saved records.");
   for (const [name, records] of entries) {
     if (!/^[a-zA-Z0-9_-]+$/.test(name) || !Array.isArray(records) ||
         records.some((record) => !record || typeof record !== "object" || Array.isArray(record))) {
@@ -79,7 +78,13 @@ export async function createEncryptedLocalBackup(password) {
   const key = await deriveKey(password, salt);
   const payload = new TextEncoder().encode(JSON.stringify(createLocalBackup()));
   const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, payload);
-  const toBase64 = (bytes) => btoa(String.fromCharCode(...bytes));
+  const toBase64 = (bytes) => {
+    let binary = "";
+    for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+    }
+    return btoa(binary);
+  };
   return {
     format: ENCRYPTED_FORMAT,
     version: VERSION,
