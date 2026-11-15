@@ -1,9 +1,9 @@
 const LABELS = {
-  company_name: /^(?:company|employer|business|organization)\s*[:\-]\s*(.+)$/i,
-  position_title: /^(?:position|job title|role|title)\s*[:\-]\s*(.+)$/i,
-  job_location: /^(?:job location|work location)\s*[:\-]\s*(.+)$/i,
-  interview_date_time: /^(?:interview date|interview time|date and time|when)\s*[:\-]\s*(.+)$/i,
-  contact_info: /^(?:contact|contact person|recruiter|email|phone)\s*[:\-]\s*(.+)$/i,
+  company_name: /^(?:company|employer|business|organization)\s*[:-]\s*(.+)$/i,
+  position_title: /^(?:position|job title|role|title)\s*[:-]\s*(.+)$/i,
+  job_location: /^(?:job location|work location)\s*[:-]\s*(.+)$/i,
+  interview_date_time: /^(?:interview date|interview time|date and time|when)\s*[:-]\s*(.+)$/i,
+  contact_info: /^(?:contact|contact person|recruiter|email|phone)\s*[:-]\s*(.+)$/i,
 };
 
 export async function extractFromScreenshot({ data = {} } = {}) {
@@ -13,7 +13,7 @@ export async function extractFromScreenshot({ data = {} } = {}) {
   const notes = [];
   for (const line of text.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)) {
     let matched = false;
-    const location = line.match(/^(?:location|interview location|address)\s*[:\-]\s*(.+)$/i);
+    const location = line.match(/^(?:location|interview location|address)\s*[:-]\s*(.+)$/i);
     if (location) {
       fields[data.kind === "application" ? "job_location" : "company_location"] = location[1].trim();
       matched = true;
